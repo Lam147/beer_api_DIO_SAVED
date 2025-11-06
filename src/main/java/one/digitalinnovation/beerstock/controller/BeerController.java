@@ -1,58 +1,58 @@
-package one.digitalinnovation.beerstock.controller;
+package one.digitalinnovation.beerstock.service;
 
 import one.digitalinnovation.beerstock.dto.BeerDTO;
-import one.digitalinnovation.beerstock.dto.QuantityDTO;
+import one.digitalinnovation.beerstock.entity.Beer;
 import one.digitalinnovation.beerstock.exception.*;
-import one.digitalinnovation.beerstock.service.BeerService;
+import one.digitalinnovation.beerstock.mapper.BeerMapper;
+import one.digitalinnovation.beerstock.repository.BeerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/api/v1/beers")
-public class BeerController {
+@Service
+public class BeerService {
 
-    private final BeerService service;
+    private final BeerRepository repo;
+    private final BeerMapper mapper = BeerMapper.INSTANCE;
 
     @Autowired
-    public BeerController(BeerService service) {
-        this.service = service;
+    public BeerService(BeerRepository repo) {
+        this.repo = repo;
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public BeerDTO createBeer(@RequestBody @Valid BeerDTO dto) throws BeerAlreadyRegisteredException {
-        return service.createBeer(dto);
+    public BeerDTO createBeer(BeerDTO dto) throws BeerAlreadyRegisteredException {
+        repo.findByName(dto.getName()).ifPresent(b -> { throw new BeerAlreadyRegisteredException(dto.getName()); });
+        return mapper.toDTO(repo.save(mapper.toModel(dto)));
     }
 
-    @GetMapping("/{name}")
-    public BeerDTO findByName(@PathVariable String name) throws BeerNotFoundException {
-        return service.findByName(name);
+    public BeerDTO findByName(String name) throws BeerNotFoundException {
+        return mapper.toDTO(repo.findByName(name).orElseThrow(() -> new BeerNotFoundException(name)));
     }
 
-    @GetMapping
-    public List<BeerDTO> listBeers() {
-        return service.listAll();
+    public List<BeerDTO> listAll() {
+        return repo.findAll().stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) throws BeerNotFoundException {
-        service.deleteById(id);
+    public void deleteById(Long id) throws BeerNotFoundException {
+        Beer beer = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        repo.delete(beer);  // <--- O TESTE QUER ISSO
     }
 
-    @PatchMapping("/{id}/increment")
-    public BeerDTO increment(@PathVariable Long id, @RequestBody @Valid QuantityDTO dto)
-            throws BeerNotFoundException, BeerStockExceededException {
-        return service.increment(id, dto.getQuantity());
+    public BeerDTO increment(Long id, int qty) throws BeerNotFoundException, BeerStockExceededException {
+        Beer b = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        int n = b.getQuantity() + qty;
+        if (n > b.getMax()) throw new BeerStockExceededException(id, qty);
+        b.setQuantity(n);
+        return mapper.toDTO(repo.save(b));
     }
 
-    @PatchMapping("/{id}/decrement")
-    public BeerDTO decrement(@PathVariable Long id, @RequestBody @Valid QuantityDTO dto)
-            throws BeerNotFoundException, BeerStockExceededException {
-        return service.decrement(id, dto.getQuantity());
+    public BeerDTO decrement(Long id, int qty) throws BeerNotFoundException, BeerStockExceededException {
+        Beer b = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        int n = b.getQuantity() - qty;
+        if (n < 0) throw new BeerStockExceededException(id, qty);
+        b.setQuantity(n);
+        return mapper.toDTO(repo.save(b));
     }
 }

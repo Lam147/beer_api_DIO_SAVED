@@ -3,9 +3,7 @@ package one.digitalinnovation.beerstock.service;
 import one.digitalinnovation.beerstock.dto.BeerDTO;
 import one.digitalinnovation.beerstock.dto.QuantityDTO;
 import one.digitalinnovation.beerstock.entity.Beer;
-import one.digitalinnovation.beerstock.exception.BeerAlreadyRegisteredException;
-import one.digitalinnovation.beerstock.exception.BeerNotFoundException;
-import one.digitalinnovation.beerstock.exception.BeerStockExceededException;
+import one.digitalinnovation.beerstock.exception.*;
 import one.digitalinnovation.beerstock.mapper.BeerMapper;
 import one.digitalinnovation.beerstock.repository.BeerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,48 +27,39 @@ public class BeerService {
     public BeerDTO createBeer(BeerDTO beerDTO) throws BeerAlreadyRegisteredException {
         verifyIfIsAlreadyRegistered(beerDTO.getName());
         Beer beer = beerMapper.toModel(beerDTO);
-        Beer savedBeer = beerRepository.save(beer);
-        return beerMapper.toDTO(savedBeer);
+        return beerMapper.toDTO(beerRepository.save(beer));
     }
 
     public BeerDTO findByName(String name) throws BeerNotFoundException {
-        Beer foundBeer = beerRepository.findByName(name)
-                .orElseThrow(() -> new BeerNotFoundException(name));
-        return beerMapper.toDTO(foundBeer);
+        return beerMapper.toDTO(beerRepository.findByName(name)
+                .orElseThrow(() -> new BeerNotFoundException(name)));
     }
 
     public List<BeerDTO> listAll() {
-        return beerRepository.findAll()
-                .stream()
+        return beerRepository.findAll().stream()
                 .map(beerMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public void deleteById(Long id) throws BeerNotFoundException {
-        Beer beerToDelete = verifyIfExists(id);
-        beerRepository.delete(beerToDelete);
+        Beer beer = verifyIfExists(id);
+        beerRepository.delete(beer);
     }
 
-    public BeerDTO increment(Long id, int quantityToIncrement) throws BeerNotFoundException, BeerStockExceededException {
+    public BeerDTO increment(Long id, int amount) throws BeerNotFoundException, BeerStockExceededException {
         Beer beer = verifyIfExists(id);
-        int newQuantity = beer.getQuantity() + quantityToIncrement;
-        if (newQuantity > beer.getMax()) {
-            throw new BeerStockExceededException(id, quantityToIncrement);
-        }
-        beer.setQuantity(newQuantity);
-        Beer updatedBeer = beerRepository.save(beer);
-        return beerMapper.toDTO(updatedBeer);
+        int newQty = beer.getQuantity() + amount;
+        if (newQty > beer.getMax()) throw new BeerStockExceededException(id, amount);
+        beer.setQuantity(newQty);
+        return beerMapper.toDTO(beerRepository.save(beer));
     }
 
-    public BeerDTO decrement(Long id, int quantityToDecrement) throws BeerNotFoundException, BeerStockExceededException {
+    public BeerDTO decrement(Long id, int amount) throws BeerNotFoundException, BeerStockExceededException {
         Beer beer = verifyIfExists(id);
-        int newQuantity = beer.getQuantity() - quantityToDecrement;
-        if (newQuantity < 0) {
-            throw new BeerStockExceededException(id, quantityToDecrement);
-        }
-        beer.setQuantity(newQuantity);
-        Beer updatedBeer = beerRepository.save(beer);
-        return beerMapper.toDTO(updatedBeer);
+        int newQty = beer.getQuantity() - amount;
+        if (newQty < 0) throw new BeerStockExceededException(id, amount);
+        beer.setQuantity(newQty);
+        return beerMapper.toDTO(beerRepository.save(beer));
     }
 
     private Beer verifyIfExists(Long id) throws BeerNotFoundException {
@@ -79,9 +68,7 @@ public class BeerService {
     }
 
     private void verifyIfIsAlreadyRegistered(String name) throws BeerAlreadyRegisteredException {
-        Optional<Beer> optSavedBeer = beerRepository.findByName(name);
-        if (optSavedBeer.isPresent()) {
+        if (beerRepository.findByName(name).isPresent())
             throw new BeerAlreadyRegisteredException(name);
-        }
     }
 }

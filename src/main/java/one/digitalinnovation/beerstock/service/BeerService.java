@@ -42,11 +42,11 @@ public class BeerService {
     }
 
     public void deleteById(Long id) throws BeerNotFoundException {
-        verifyIfExists(id);
-        beerRepository.deleteById(id);
+        Beer beer = verifyIfExists(id);
+        beerRepository.delete(beer);
     }
 
-    public BeerDTO increment(Long id, int amount) throws BeerNotFoundException, BeerStockExceededException {
+    public BeerDTO increment(Long id, int amount) throws BeerNotFound Exception, BeerStockExceededException {
         Beer beer = verifyIfExists(id);
         int newQty = beer.getQuantity() + amount;
         if (newQty > beer.getMax()) throw new BeerStockExceededException(id, amount);

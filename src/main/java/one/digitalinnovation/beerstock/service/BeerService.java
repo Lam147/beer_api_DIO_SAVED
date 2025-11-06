@@ -42,8 +42,8 @@ public class BeerService {
     }
 
     public void deleteById(Long id) throws BeerNotFoundException {
-        Beer beer = verifyIfExists(id);
-        beerRepository.delete(beer);
+        verifyIfExists(id);
+        beerRepository.deleteById(id);
     }
 
     public BeerDTO increment(Long id, int amount) throws BeerNotFoundException, BeerStockExceededException {

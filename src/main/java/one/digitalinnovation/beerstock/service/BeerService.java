@@ -23,7 +23,7 @@ public class BeerService {
         this.repo = repo;
     }
 
-    public BeerDTO create(BeerDTO dto) throws BeerAlreadyRegisteredException {
+    public BeerDTO createBeer(BeerDTO dto) throws BeerAlreadyRegisteredException {
         if (repo.findByName(dto.getName()).isPresent()) throw new BeerAlreadyRegisteredException(dto.getName());
         return mapper.toDTO(repo.save(mapper.toModel(dto)));
     }
@@ -42,18 +42,18 @@ public class BeerService {
     }
 
     public BeerDTO increment(Long id, int qty) throws BeerNotFoundException, BeerStockExceededException {
-        Beer beer = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
-        int newQty = beer.getQuantity() + qty;
-        if (newQty > beer.getMax()) throw new BeerStockExceededException(id, qty);
-        beer.setQuantity(newQty);
-        return mapper.toDTO(repo.save(beer));
+        Beer b = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        int n = b.getQuantity() + qty;
+        if (n > b.getMax()) throw new BeerStockExceededException(id, qty);
+        b.setQuantity(n);
+        return mapper.toDTO(repo.save(b));
     }
 
     public BeerDTO decrement(Long id, int qty) throws BeerNotFoundException, BeerStockExceededException {
-        Beer beer = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
-        int newQty = beer.getQuantity() - qty;
-        if (newQty < 0) throw new BeerStockExceededException(id, qty);
-        beer.setQuantity(newQty);
-        return mapper.toDTO(repo.save(beer));
+        Beer b = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        int n = b.getQuantity() - qty;
+        if (n < 0) throw new BeerStockExceededException(id, qty);
+        b.setQuantity(n);
+        return mapper.toDTO(repo.save(b));
     }
 }

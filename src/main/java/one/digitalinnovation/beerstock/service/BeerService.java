@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +23,7 @@ public class BeerService {
     }
 
     public BeerDTO createBeer(BeerDTO dto) throws BeerAlreadyRegisteredException {
-        if (repo.findByName(dto.getName()).isPresent()) throw new BeerAlreadyRegisteredException(dto.getName());
+        repo.findByName(dto.getName()).ifPresent(b -> { throw new BeerAlreadyRegisteredException(dto.getName()); });
         return mapper.toDTO(repo.save(mapper.toModel(dto)));
     }
 
@@ -37,8 +36,8 @@ public class BeerService {
     }
 
     public void deleteById(Long id) throws BeerNotFoundException {
-        repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
-        repo.deleteById(id);
+        Beer beer = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        repo.delete(beer);  // TESTE QUER ISSO
     }
 
     public BeerDTO increment(Long id, int qty) throws BeerNotFoundException, BeerStockExceededException {

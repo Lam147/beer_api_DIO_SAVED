@@ -23,7 +23,8 @@ public class BeerService {
     }
 
     public BeerDTO createBeer(BeerDTO dto) throws BeerAlreadyRegisteredException {
-        repo.findByName(dto.getName()).ifPresent(b -> { throw new BeerAlreadyRegisteredException(dto.getName()); });
+        repo.findByName(dto.getName())
+            .ifPresent(b -> { throw new BeerAlreadyRegisteredException(dto.getName()); });
         return mapper.toDTO(repo.save(mapper.toModel(dto)));
     }
 

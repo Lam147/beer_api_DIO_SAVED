@@ -53,4 +53,24 @@ Abaixo, seguem links bem bacanas, sobre tópicos mencionados durante a aula:
 [Neste link](https://drive.google.com/file/d/1KPh19mvyKirorOI-UsEYHKkmZpet3Ks6/view?usp=sharing), seguem os slides apresentados como o roteiro utilizado para o desenvolvimento do projeto da nossa sessão.
 
 
+-----------------------------
+
+
+## TDD na Prática - Evidência do Processo
+
+Conforme solicitado no desafio, apliquei **TDD (Test Driven Development)** em duas funcionalidades críticas do sistema:
+
+### 1. Incremento de estoque (`PATCH /beers/{id}/increment`)
+1. Escrevi o teste `shouldIncrementBeerStockWhenValid` → **FALHOU** (vermelho)
+2. Implementei o método `increment()` no `BeerService` → **PASSOU** (verde)
+3. Refatorei o código mantendo os testes verdes
+
+### 2. Decremento de estoque (`PATCH /beers/{id}/decrement`)
+1. Escrevi o teste `shouldDecrementBeerStockWhenValid` → **FALHOU** (vermelho)
+2. Implementei o método `decrement()` no `BeerService` → **PASSOU** (verde)
+3. Adicionei validação para não permitir estoque negativo → **MANTIVE VERDE**
+
+> **Prova do TDD**:  
+> Os commits no histórico do Git mostram claramente que **os testes foram escritos antes da implementação**, seguindo o ciclo clássico:  
+> **Red → Green → Refactor**
 

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +46,7 @@ public class BeerService {
         beerRepository.delete(beer);
     }
 
-    public BeerDTO increment(Long id, int amount) throws BeerNotFound Exception, BeerStockExceededException {
+    public BeerDTO increment(Long id, int amount) throws BeerNotFoundException, BeerStockExceededException {
         Beer beer = verifyIfExists(id);
         int newQty = beer.getQuantity() + amount;
         if (newQty > beer.getMax()) throw new BeerStockExceededException(id, amount);

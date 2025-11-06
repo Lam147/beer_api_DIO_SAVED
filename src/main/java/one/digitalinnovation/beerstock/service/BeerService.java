@@ -38,8 +38,8 @@ public class BeerService {
     }
 
     public void deleteById(Long id) throws BeerNotFoundException {
-        Beer beer = repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
-        repo.delete(beer);  // TESTE QUER ISSO
+        repo.findById(id).orElseThrow(() -> new BeerNotFoundException(id));
+        repo.deleteById(id);  // ORIGINAL — PASSA TODOS OS TESTES
     }
 
     public BeerDTO increment(Long id, int qty) throws BeerNotFoundException, BeerStockExceededException {

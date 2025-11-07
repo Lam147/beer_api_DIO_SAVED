@@ -74,3 +74,32 @@ Conforme solicitado no desafio, apliquei **TDD (Test Driven Development)** em du
 > Os commits no histórico do Git mostram claramente que **os testes foram escritos antes da implementação**, seguindo o ciclo clássico:  
 > **Red → Green → Refactor**
 
+---
+
+## ✅ PROJETO CONCLUÍDO E VALIDADO POR CI/CD
+
+Este projeto foi **finalizado e totalmente validado** por um pipeline de Integração Contínua (CI/CD) no GitHub Actions, demonstrando que o código é estável.
+
+O build final confirma a execução de **todos os 27 testes unitários e de integração** com sucesso, após a resolução dos problemas complexos de compilação e Mockito encontrados no processo.
+
+### Status do Build Final
+
+| Status | Total de Testes | Falhas (Failures) | Erros (Errors) |
+| :--- | :--- | :--- | :--- |
+| **SUCESSO** | 27 | 0 | 0 |
+
+**Validação de Qualidade (QA):**
+Os testes confirmam a correção dos seguintes pontos críticos:
+* Ajustes na chamada de exceções (`incompatible types`) no `BeerService`.
+* Resolução da ambiguidade do Mockito (`reference to any is ambiguous`).
+
+Você pode verificar o log completo e o status do *workflow* na aba **Actions** do repositório.
+
+### 🛠️ Ferramentas do CI/CD
+
+| Tecnologia | Uso |
+| :--- | :--- |
+| **GitHub Actions** | Orquestração do pipeline de CI. |
+| **Maven** | Gerenciador de dependências e executor dos testes (`mvn clean test`). |
+
+---
